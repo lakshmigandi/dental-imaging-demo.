@@ -1,20 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import * as d3 from "d3";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import "./styles.css";
 
-export default function App() {
-  const [image, setImage] = useState(null);
-  const [report] = useState({
-    patientId: "P-12345",
-    findings: [
-      { issue: "Cavity", count: 2 },
-      { issue: "Alignment Issue", count: 1 },
-      { issue: "Gum Problem", count: 1 },
-    ],
-  });
+const App = () => {
+  const [image, setImage] = useState("/sample-xray.jpg"); // fallback sample
+  const [issues] = useState([
+    { type: "Cavity", count: 2 },
+    { type: "Alignment Issue", count: 1 },
+    { type: "Other", count: 1 },
+  ]);
+  const chartRef = useRef(null);
 
+  // handle file upload
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -22,62 +19,108 @@ export default function App() {
     }
   };
 
-  const generatePDF = () => {
-    const reportElement = document.getElementById("report-section");
-    html2canvas(reportElement).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("dental-report.pdf");
+  // draw chart with D3
+  useEffect(() => {
+    if (chartRef.current) {
+      d3.select(chartRef.current).selectAll("*").remove();
+      const svg = d3
+        .select(chartRef.current)
+        .append("svg")
+        .attr("width", 300)
+        .attr("height", 200);
+
+      const x = d3
+        .scaleBand()
+        .domain(issues.map((d) => d.type))
+        .range([0, 300])
+        .padding(0.2);
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(issues, (d) => d.count)])
+        .nice()
+        .range([200, 0]);
+
+      svg
+        .selectAll("rect")
+        .data(issues)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.type))
+        .attr("y", (d) => y(d.count))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => 200 - y(d.count))
+        .attr("fill", "#007bff");
+
+      svg
+        .append("g")
+        .attr("transform", "translate(0,200)")
+        .call(d3.axisBottom(x));
+
+      svg.append("g").call(d3.axisLeft(y));
+    }
+  }, [issues]);
+
+  // export report to PDF
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Patient Report", 10, 10);
+    doc.text(`Patient ID: P-${Math.floor(Math.random() * 1000)}`, 10, 20);
+    doc.text("Findings:", 10, 30);
+    issues.forEach((issue, i) => {
+      doc.text(`${i + 1}. ${issue.type}: ${issue.count}`, 10, 40 + i * 10);
     });
+    doc.save("report.pdf");
   };
 
   return (
-    <div className="app">
-      <h1>Dental Imaging Analysis Demo</h1>
-
-      {/* Upload */}
+    <div className="container">
+      <h1>Dental Imaging Analysis</h1>
       <input type="file" accept="image/*" onChange={handleUpload} />
 
-      {/* Image Area */}
-      {image && (
-        <div className="image-area">
-          <img src={image} alt="Dental X-ray" className="xray" />
-          {/* Highlighted Regions */}
-          <div
-            className="highlight"
-            style={{ top: "30%", left: "40%" }}
-          ></div>
-          <div
-            className="highlight"
-            style={{ top: "55%", left: "60%" }}
-          ></div>
-        </div>
-      )}
+      <div>
+        <img src={image} alt="Dental X-ray" />
+        {/* Example highlights */}
+        <svg
+          style={{ position: "absolute", top: 200, left: 200 }}
+          width="400"
+          height="300"
+        >
+          <circle
+            cx="100"
+            cy="80"
+            r="30"
+            stroke="red"
+            strokeWidth="3"
+            fill="none"
+          />
+          <rect
+            x="200"
+            y="150"
+            width="60"
+            height="40"
+            stroke="orange"
+            strokeWidth="3"
+            fill="none"
+          />
+        </svg>
+      </div>
 
-      {/* Report */}
-      <div id="report-section" className="report">
+      <div className="report">
         <h2>Patient Report</h2>
-        <p>
-          <strong>Patient ID:</strong> {report.patientId}
-        </p>
-        <h3>Findings:</h3>
+        <p>Patient ID: P-123</p>
         <ul>
-          {report.findings.map((f, i) => (
+          {issues.map((issue, i) => (
             <li key={i}>
-              {f.issue}: {f.count}
+              {issue.type}: {issue.count}
             </li>
           ))}
         </ul>
-
-        <div id="chart"></div>
       </div>
 
-      {/* Export Button */}
-      <button onClick={generatePDF}>Export Report as PDF</button>
+      <div ref={chartRef}></div>
+
+      <button onClick={exportPDF}>Export Report as PDF</button>
     </div>
   );
-}
+};
