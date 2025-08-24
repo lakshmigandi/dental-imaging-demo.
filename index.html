@@ -10,3 +10,35 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+2. src/main.jsx
+jsx
+Copy
+Edit
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './styles.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+3. src/App.jsx
+For now, let’s test with a very simple component to confirm rendering works:
+
+jsx
+Copy
+Edit
+import React from 'react';
+
+function App() {
+  return (
+    <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <h1>🦷 Dental Imaging Demo</h1>
+      <p>If you can see this, React is working!</p>
+    </div>
+  );
+}
+
+
