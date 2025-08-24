@@ -1,46 +1,38 @@
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 20px;
-  background: #f9fafb;
-  color: #111827;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.app {
-  max-width: 900px;
-  margin: auto;
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 450px;
+  max-width: 90%;
 }
 
-.image-area {
-  position: relative;
-  display: inline-block;
-  margin-top: 20px;
+h1 {
+  color: #0066cc;
+  margin-bottom: 20px;
 }
 
-.xray {
+input[type="file"] {
+  margin: 10px 0;
+}
+
+img {
+  margin-top: 15px;
   max-width: 100%;
-  height: auto;
-  border: 2px solid #ccc;
   border-radius: 8px;
-}
-
-.highlight {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border: 2px solid red;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.report {
-  margin-top: 20px;
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  text-align: left;
+  border: 1px solid #ddd;
 }
 
 button {
@@ -48,12 +40,21 @@ button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;
-  border-radius: 6px;
-  background: #4f46e5;
+  border-radius: 8px;
+  background: #0066cc;
   color: white;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background: #4338ca;
+  background: #004c99;
 }
+
+.result {
+  margin-top: 20px;
+  font-size: 18px;
+  color: darkred;
+  font-weight: bold;
+}
+  
